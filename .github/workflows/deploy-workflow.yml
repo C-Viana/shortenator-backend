@@ -11,11 +11,11 @@ on:
       environment:
         description: 'Ambiente de destino'
         required: true
-        default: 'Production'
+        default: 'Shortenator-Server / production'
         type: choice
         options:
-          - Production
-          - Staging
+          - Shortenator-Server / production
+          - Shortenator-Server / Staging
 
 jobs:
   deploy:
