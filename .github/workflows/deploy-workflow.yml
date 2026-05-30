@@ -31,6 +31,8 @@ jobs:
       run: |
         echo "⬇️ Buscando shortenator-backend:${{ inputs.version }} no GitHub Packages..."
         mvn dependency:get \
-          -DrepoUrl=https://maven.pkg.github.com/${{ github.repository_owner }}/shortenator-backend \
+          -DremoteRepositories=github::::https://maven.pkg.github.com/${{ github.repository_owner }}/shortenator-backend \
           -Dartifact=com.cviana:shortenator-backend:${{ inputs.version }}:jar \
-          -Dtransitive=false
+          -Dtransitive=false \
+          -Dusername=${{ github.actor }} \
+          -Dpassword=${{ github.token }}
