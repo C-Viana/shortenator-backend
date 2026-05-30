@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Versão/Tag para Deploy (ex: v1.1.0)'
+        description: 'Versão/Tag para Deploy (ex: 1.1.0)'
         required: true
-        default: 'v1.0.0'
+        default: '1.0.0'
         type: string
       environment:
         description: 'Ambiente de destino'
@@ -23,16 +23,22 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - name: Iniciando o fluxo
-      run: |
-        echo "🚀 Iniciando deploy da versão ${{ inputs.version }} no ambiente ${{ inputs.environment }}..."
+    - name: Set up JDK 25 e Configurar Autenticação
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        server-id: github # Cria a ponte de autenticação no arquivo settings.xml gerado pelo GitHub
+        settings-path: ${{ github.workspace }}
 
-    - name: Baixar Artefato do GitHub Packages (Simulado)
+    - name: Baixar o JAR do GitHub Packages
       run: |
-        echo "⬇️ Buscando shortenator-backend:${{ inputs.version }} no GitHub Packages..."
+        echo "⬇️ Baixando a versão ${{ inputs.version }} do GitHub Packages..."
+        
         mvn dependency:get \
+          -s $GITHUB_WORKSPACE/settings.xml \
           -DremoteRepositories=github::::https://maven.pkg.github.com/${{ github.repository_owner }}/shortenator-backend \
           -Dartifact=com.cviana:shortenator-backend:${{ inputs.version }}:jar \
-          -Dtransitive=false \
-          -Dusername=${{ github.actor }} \
-          -Dpassword=${{ github.token }}
+          -Dtransitive=false
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
