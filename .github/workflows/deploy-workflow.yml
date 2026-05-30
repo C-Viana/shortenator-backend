@@ -1,0 +1,36 @@
+name: PROD Deploy Manual
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Versão/Tag para Deploy (ex: v1.1.0)'
+        required: true
+        default: 'v1.0.0'
+        type: string
+      environment:
+        description: 'Ambiente de destino'
+        required: true
+        default: 'Production'
+        type: choice
+        options:
+          - Production
+          - Staging
+
+jobs:
+  deploy:
+    name: Executar Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Iniciando o fluxo
+      run: |
+        echo "🚀 Iniciando deploy da versão ${{ inputs.version }} no ambiente ${{ inputs.environment }}..."
+
+    - name: Baixar Artefato do GitHub Packages (Simulado)
+      run: |
+        echo "⬇️ Buscando shortenator-backend:${{ inputs.version }} no GitHub Packages..."
+        mvn dependency:get \
+          -DrepoUrl=https://maven.pkg.github.com/${{ github.repository_owner }}/shortenator-backend \
+          -Dartifact=com.cviana:shortenator-backend:${{ inputs.version }}:jar \
+          -Dtransitive=false
