@@ -2,6 +2,8 @@
 **O Shortenator é um sistema encurtador de URLs que cria um link de acesso curto e o usa para redirecionar para a URL original.
 Caso precise encurtar URLs para compartilhar links mais curtos, o Shortenator é a ferramenta para isso.**
 
+[![PROD CI](https://github.com/C-Viana/shortenator-backend/actions/workflows/release-workflow.yml/badge.svg)](https://github.com/C-Viana/shortenator-backend/actions/workflows/release-workflow.yml)
+
 ## TECNOLOGIAS
 - **Backend**: Spring Boot 4 e Java 25
 - **Segurança**: Autenticação JWT
