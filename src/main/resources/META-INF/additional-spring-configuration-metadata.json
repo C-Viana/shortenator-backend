@@ -1,0 +1,19 @@
+{
+	"properties": [
+		{
+			"name": "api.security.token.secret",
+			"type": "java.lang.String",
+			"description": "The secret code for handling JWT authentication in this application"
+		},
+		{
+			"name": "api.security.token.expiry",
+			"type": "java.lang.Integer",
+			"description": "Amount of time representing the validity of the generated JWT"
+		},
+		{
+			"name": "api.security.token.refresh",
+			"type": "java.lang.Integer",
+			"description": "Amount of time representing the validity of the generated refresh token"
+		}
+	]
+}

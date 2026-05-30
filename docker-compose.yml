@@ -1,0 +1,62 @@
+services:
+  postgres_db:
+    image: postgres:18
+    container_name: postgres_db
+    restart: on-failure
+    ports:
+      - "${DB_PORT}:5432"
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql
+    networks:
+      - default
+  redis_cache:
+    image: redis:8
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - cache_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - default
+  backend:
+    image: shortenator-api:latest
+    container_name: shortenator-api
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres_db
+      - redis_cache
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_USERNAME: ${REDIS_USERNAME}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      EMAIL_USERNAME: ${EMAIL_USERNAME}
+      EMAIL_PASSWORD: ${EMAIL_APP_PASSWORD}
+    networks:
+      - default
+volumes:
+  db_data:
+    driver: local
+  cache_data:
+    driver: local
+networks:
+  default:
+    driver: bridge
