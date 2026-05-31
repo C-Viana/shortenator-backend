@@ -52,9 +52,9 @@ public class UrlService {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private UrlRepository repository;
 	private AccessLogRepository accessLogRepository;
-	private final RedisTemplate<String, String> redisTemplate;
 	private GmailSender email;
 	
+	private final RedisTemplate<String, String> redisTemplate;
 	private static final String CACHE_PREFIX = "url:";
     private static final long CACHE_TTL_HOURS = 24;
 	
@@ -66,17 +66,18 @@ public class UrlService {
 		this.email = email;
 	}
 	
-	private void cacheUrl(String code, String targetUrl, Instant expiresAt) {
-        String key = CACHE_PREFIX + code;
-        if (expiresAt != null) {
-            long secondsUntilExpiry = Instant.now().until(expiresAt, ChronoUnit.SECONDS);
-            if (secondsUntilExpiry > 0) {
-                redisTemplate.opsForValue().set(key, targetUrl, secondsUntilExpiry, TimeUnit.SECONDS);
-            }
-        } else {
-            redisTemplate.opsForValue().set(key, targetUrl, CACHE_TTL_HOURS, TimeUnit.HOURS);
-        }
-    }
+	//TODO: cache desativado devido limitação do serviço de hospedagem
+	// private void cacheUrl(String code, String targetUrl, Instant expiresAt) {
+    //     String key = CACHE_PREFIX + code;
+    //     if (expiresAt != null) {
+    //         long secondsUntilExpiry = Instant.now().until(expiresAt, ChronoUnit.SECONDS);
+    //         if (secondsUntilExpiry > 0) {
+    //             redisTemplate.opsForValue().set(key, targetUrl, secondsUntilExpiry, TimeUnit.SECONDS);
+    //         }
+    //     } else {
+    //         redisTemplate.opsForValue().set(key, targetUrl, CACHE_TTL_HOURS, TimeUnit.HOURS);
+    //     }
+    // }
 
 	public Url shortenUrl(UrlRequestDto sourceData, User user) {
 		Instant expiration = null;
@@ -102,8 +103,8 @@ public class UrlService {
 		
 		String urlCode = Base62Encoder.encode(savedUrl.getId());
 		savedUrl.setShortenedUrlCode(urlCode);
-		
-		cacheUrl(savedUrl.getShortenedUrlCode(), savedUrl.getSourceUrl(), savedUrl.getExpiresAt());
+		//TODO: cache desativado devido limitação do serviço de hospedagem
+		// cacheUrl(savedUrl.getShortenedUrlCode(), savedUrl.getSourceUrl(), savedUrl.getExpiresAt());
 		
 		return repository.save(savedUrl);
 	}
@@ -131,26 +132,38 @@ public class UrlService {
 		repository.deleteById(id);
 	}
 	
+	//TODO: cache desativado devido limitação do serviço de hospedagem
+	// public String redirectUrl(String shortenatorCode, String userAgent, String referrer) throws Exception {
+	// 	String cached = redisTemplate.opsForValue().get(CACHE_PREFIX + shortenatorCode);
+	// 	String targetUrl;
+		
+    //     if (cached != null) {
+    //         log.info("Cache hit for code: {}", shortenatorCode);
+    //         targetUrl = cached;
+            
+    //         Url url = repository.findByShortenedUrlCode(shortenatorCode).orElseThrow(() -> new NotFoundException(SystemErrorMessages.URL_CODE_NOT_FOUND));
+    //         registerAccessLog(url, userAgent, referrer);
+    //     }
+    //     else {
+    //     	log.info("Cache miss for code: {}", shortenatorCode);
+    // 		Url url = repository.findByShortenedUrlCode(shortenatorCode).orElseThrow(() -> new NotFoundException(SystemErrorMessages.URL_CODE_NOT_FOUND));
+    		
+    // 		if (url.getExpiresAt() != null && Instant.now(Clock.system(ZoneId.of("GMT-3"))).isAfter(url.getExpiresAt())) throw new UrlExpiredException();
+    // 		cacheUrl(url.getShortenedUrlCode(), url.getSourceUrl(), url.getExpiresAt());
+    // 		registerAccessLog(url, userAgent, referrer);
+    //         targetUrl = url.getSourceUrl();
+    //     }
+        
+	// 	return targetUrl;
+	// }
+	
 	public String redirectUrl(String shortenatorCode, String userAgent, String referrer) throws Exception {
-		String cached = redisTemplate.opsForValue().get(CACHE_PREFIX + shortenatorCode);
 		String targetUrl;
 		
-        if (cached != null) {
-            log.info("Cache hit for code: {}", shortenatorCode);
-            targetUrl = cached;
-            
-            Url url = repository.findByShortenedUrlCode(shortenatorCode).orElseThrow(() -> new NotFoundException(SystemErrorMessages.URL_CODE_NOT_FOUND));
-            registerAccessLog(url, userAgent, referrer);
-        }
-        else {
-        	log.info("Cache miss for code: {}", shortenatorCode);
-    		Url url = repository.findByShortenedUrlCode(shortenatorCode).orElseThrow(() -> new NotFoundException(SystemErrorMessages.URL_CODE_NOT_FOUND));
-    		
-    		if (url.getExpiresAt() != null && Instant.now(Clock.system(ZoneId.of("GMT-3"))).isAfter(url.getExpiresAt())) throw new UrlExpiredException();
-    		cacheUrl(url.getShortenedUrlCode(), url.getSourceUrl(), url.getExpiresAt());
-    		registerAccessLog(url, userAgent, referrer);
-            targetUrl = url.getSourceUrl();
-        }
+        Url url = repository.findByShortenedUrlCode(shortenatorCode).orElseThrow(() -> new NotFoundException(SystemErrorMessages.URL_CODE_NOT_FOUND));
+		if (url.getExpiresAt() != null && Instant.now(Clock.system(ZoneId.of("GMT-3"))).isAfter(url.getExpiresAt())) throw new UrlExpiredException();
+		registerAccessLog(url, userAgent, referrer);
+		targetUrl = url.getSourceUrl();
         
 		return targetUrl;
 	}

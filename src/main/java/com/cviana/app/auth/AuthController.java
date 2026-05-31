@@ -117,7 +117,8 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(@RequestHeader("Authorization") @NotNull String token) {
     	token = token.substring(7);
-    	tokenBlacklistService.add(token, tokenService.extractUsername(token));
+        //TODO: cache desativado devido limitação do serviço de hospedagem
+    	// tokenBlacklistService.add(token, tokenService.extractUsername(token));
         SecurityContextHolder.clearContext();
         return ResponseEntity.ok("Logout realizado com sucesso. Token invalidado.");
     }
