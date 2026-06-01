@@ -1,0 +1,32 @@
+name: Manual build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: Shortenator-Server / production
+      deployment: true
+    permissions:
+      contents: write
+      packages: write
+    env:
+      JWT_SECRET: ${{secrets.JWT_SECRET}}
+      EMAIL_USERNAME: ${{secrets.EMAIL_USERNAME}}
+      EMAIL_PASSWORD: ${{secrets.EMAIL_PASSWORD}}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 25
+      uses: actions/setup-java@v4
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+    
+    - name: Verify and test with Maven
+      run: mvn -B verify --file pom.xml
