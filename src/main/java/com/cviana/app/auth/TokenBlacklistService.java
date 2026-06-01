@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-@Service
+// @Service
 public class TokenBlacklistService {
 	private final RedisTemplate<String, String> redisTemplate;
 	

@@ -13,23 +13,6 @@ services:
       - db_data:/var/lib/postgresql
     networks:
       - default
-  redis_cache:
-    image: redis:8
-    container_name: redis_cache
-    restart: always
-    ports:
-      - "6379:6379"
-    environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
-    volumes:
-      - cache_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - default
   backend:
     image: shortenator-api:latest
     container_name: shortenator-api
@@ -37,7 +20,6 @@ services:
       - 8080:8080
     depends_on:
       - postgres_db
-      - redis_cache
     environment:
       DB_HOST: ${DB_HOST}
       DB_PORT: ${DB_PORT}
@@ -54,8 +36,6 @@ services:
       - default
 volumes:
   db_data:
-    driver: local
-  cache_data:
     driver: local
 networks:
   default:

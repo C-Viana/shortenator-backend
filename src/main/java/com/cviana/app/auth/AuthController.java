@@ -32,13 +32,13 @@ import jakarta.validation.constraints.NotNull;
 public class AuthController {
 	
 	private TokenService tokenService;
-    private TokenBlacklistService tokenBlacklistService;
+    // private TokenBlacklistService tokenBlacklistService;
     private AuthenticationManager authenticationManager;
     
-    public AuthController(TokenService tokenService, TokenBlacklistService tokenBlacklistService, AuthenticationManager authenticationManager) {
+    public AuthController(TokenService tokenService, AuthenticationManager authenticationManager) {
     	this.tokenService = tokenService;
     	this.authenticationManager = authenticationManager;
-        this.tokenBlacklistService = tokenBlacklistService;
+        // this.tokenBlacklistService = tokenBlacklistService;
     }
     
 	@Operation(
