@@ -18,7 +18,7 @@ public record UrlResponseDto(
 
 	public static UrlResponseDto toResponse(Url url) {
 		return new UrlResponseDto(url.getName(), url.getSourceDomain(), url.getSourceUrl(),
-				(ServletUriComponentsBuilder.fromCurrentContextPath().toUriString()) + "/" + url.getShortenedUrlCode(),
+				(ServletUriComponentsBuilder.fromCurrentContextPath().toUriString()) + "/r/" + url.getShortenedUrlCode(),
 				url.getExpiresAt());
 	}
 
@@ -27,7 +27,7 @@ public record UrlResponseDto(
 
 		for (Url item : url) {
 			result.add(new UrlResponseDto(item.getName(), item.getSourceDomain(), item.getSourceUrl(),
-					(ServletUriComponentsBuilder.fromCurrentContextPath().toUriString()) + "/"
+					(ServletUriComponentsBuilder.fromCurrentContextPath().toUriString()) + "/r/"
 							+ item.getShortenedUrlCode(),
 					item.getExpiresAt()));
 		}
