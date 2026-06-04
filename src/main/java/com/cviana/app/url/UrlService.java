@@ -8,12 +8,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -22,6 +20,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -47,13 +47,14 @@ import jakarta.mail.MessagingException;
 
 @Service
 @Transactional
+@EnableAsync
 public class UrlService {
 	
-	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private UrlRepository repository;
 	private AccessLogRepository accessLogRepository;
 	private GmailSender email;
 	
+	private Logger log = LoggerFactory.getLogger(this.getClass());
 	private final RedisTemplate<String, String> redisTemplate;
 	private static final String CACHE_PREFIX = "url:";
     private static final long CACHE_TTL_HOURS = 24;
@@ -189,6 +190,7 @@ public class UrlService {
 		return fileRequest.create(content, baseUrl);
 	}
 	
+	@Async
 	public void shareUrls(String sender, String[] to, String title, String content, String filePath) {
 		try {
 			email.sendMessageWithAttachment(sender, to, title, content, filePath);

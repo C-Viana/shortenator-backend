@@ -110,20 +110,14 @@ Como recomendação, crie um arquivo _.env_  na raíz do projeto com a atribuiç
 
 ### FLUXO DE CONSULTA DE URLs
 ```
-      [Redis Cache]      |    [shortenator-backend]    |      [PostgreSQL]       |
-                         |              ↓              |                         |
-                         |  Solicita redirecionamento  |                         |
-                         |              ↓              |                         |
-          ↓         ←    |      ←     [GET]            |                         |
-                         |                             |                         |
-Existe no cache?         |                             |                         |
-        [NÃO]       →    |               →             |    →   URL existe?  →   |    →    [NÃO]    →    STATUS 404
-                         |                             |             ↓           |
-        [SIM]       →    |       Registra métricas     |    ←      [SIM]         |
-                         |               ↓             |                         |
-                         |        Salva no cache       |                         |
-                         |               ↓             |                         |
-                         |        Redireciona URL      |                         |
+[ Cliente / Browser ] 
+        │ (Request / URL Curta)
+        ▼
+ [ Spring Boot API ] ────► [ Redis Cache ] (Busca rápida do código)
+        │
+        ├────────────────► [ PostgreSQL ] (Cadastro de usuários/URLs)
+        │
+        └────────────────► [ SMTP Server ] (Envio de e-mails)
 ```
 
 ### ENDPOINTS
